@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #F7F7F7;
+    color: #2D3436;
+}
+
+.kermesse-card {
+    transition: transform 0.2s;
+}
+
+.kermesse-card:hover {
+    transform: translateY(-5px);
+}

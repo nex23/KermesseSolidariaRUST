@@ -1,0 +1,15 @@
+# Rust
+target/
+**/*.rs.bk
+
+# Node/Frontend
+node_modules/
+dist/
+.trunk/
+
+# Environment/Secrets
+.env
+
+# System
+.DS_Store
+Thumbs.db
