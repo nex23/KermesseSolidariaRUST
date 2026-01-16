@@ -66,7 +66,7 @@ pub fn collaboration_request_form(props: &Props) -> Html {
                     <p class="text-gray-600 mb-4">{ "Únete al equipo y ayuda a que este evento sea un éxito. Elige cómo quieres colaborar y envía tu solicitud." }</p>
                     <button 
                         onclick={Callback::from(move |_| show_form.set(true))}
-                        class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-indigo-700 transition"
+                        class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-red-600 transition"
                     >
                         { "Solicitar Ser Colaborador" }
                     </button>

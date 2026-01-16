@@ -1,7 +1,7 @@
 module.exports = {
     content: [
-        "./frontend/src/**/*.rs",
-        "./frontend/index.html",
+        "./src/**/*.rs",
+        "./index.html",
     ],
     theme: {
         extend: {

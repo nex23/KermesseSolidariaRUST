@@ -8,6 +8,7 @@ use crate::pages::home::Kermesse;
 use crate::components::organizer_dashboard::OrganizerDashboardV2;
 use crate::components::collaboration_form::CollaborationRequestForm;
 use crate::components::ingredient_donations::IngredientDonationsList;
+use gloo_console;
 
 #[derive(Clone, PartialEq, Deserialize)]
 pub struct Dish {
@@ -98,7 +99,11 @@ pub fn kermesse_detail(props: &Props) -> Html {
 
     if let Some(detail_data) = &*detail {
         let kermesse = &detail_data.kermesse;
-        let is_organizer = user_ctx.user.as_ref().map(|u| u.id == kermesse.organizer_id && u.id != 0).unwrap_or(false); // Assume id 0 is not valid or at least checking exists
+        let is_organizer = user_ctx.user.as_ref().map(|u| {
+            gloo_console::log!(format!("Checking organizer: user_id={} vs kermesse_organizer_id={}", u.id, kermesse.organizer_id));
+            u.id == kermesse.organizer_id && u.id != 0
+        }).unwrap_or(false); 
+        // Assume id 0 is not valid or at least checking exists
         let user_token = user_ctx.user.as_ref().map(|u| u.token.clone());
 
         let on_add_dish = {
