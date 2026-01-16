@@ -9,6 +9,8 @@ use router::{Route, switch};
 mod context;
 use context::UserContextProvider;
 
+mod components;
+
 #[function_component(App)]
 fn app() -> Html {
     html! {

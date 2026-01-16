@@ -2,17 +2,38 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 use reqwasm::http::Request;
 use serde::Deserialize;
+use serde_json;
 use crate::router::Route;
 use crate::pages::home::Kermesse;
+use crate::components::organizer_dashboard::OrganizerDashboardV2;
+use crate::components::collaboration_form::CollaborationRequestForm;
+use crate::components::ingredient_donations::IngredientDonationsList;
 
 #[derive(Clone, PartialEq, Deserialize)]
 pub struct Dish {
     pub id: i32,
     pub name: String,
     pub description: String,
-    pub price: f64, // Using f64 for simplicity in frontend display
+    #[serde(deserialize_with = "deserialize_price")]
+    pub price: f64,
     pub quantity_available: i32,
     pub image_url: Option<String>,
+}
+
+// Custom deserializer to handle both string and number formats
+fn deserialize_price<'de, D>(deserializer: D) -> Result<f64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::Error;
+    use serde_json::Value;
+    
+    let value = Value::deserialize(deserializer)?;
+    match value {
+        Value::Number(n) => n.as_f64().ok_or_else(|| Error::custom("Invalid number")),
+        Value::String(s) => s.parse::<f64>().map_err(|e| Error::custom(format!("Invalid string number: {}", e))),
+        _ => Err(Error::custom("Price must be number or string")),
+    }
 }
 
 #[derive(Clone, PartialEq, Deserialize)]
@@ -25,11 +46,23 @@ pub struct Collaborator {
 }
 
 #[derive(Clone, PartialEq, Deserialize)]
+pub struct Ingredient {
+    pub id: i32,
+    pub name: String,
+    #[serde(deserialize_with = "deserialize_price")]
+    pub quantity_needed: f64,
+    pub unit: String,
+    #[serde(deserialize_with = "deserialize_price")]
+    pub quantity_donated: f64,
+}
+
+#[derive(Clone, PartialEq, Deserialize)]
 pub struct KermesseDetailData {
     #[serde(flatten)]
     pub kermesse: Kermesse,
     pub dishes: Vec<Dish>,
     pub collaborators: Vec<Collaborator>,
+    pub ingredients: Vec<Ingredient>,
 }
 
 #[derive(Properties, PartialEq)]
@@ -153,7 +186,7 @@ pub fn kermesse_detail(props: &Props) -> Html {
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2">
+                     <div class="lg:col-span-2">
                         <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">{ "Menú del Día" }</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {
@@ -186,8 +219,41 @@ pub fn kermesse_detail(props: &Props) -> Html {
                     </div>
 
                     <div>
+                        // Social Sharing Buttons
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-md p-6 mb-6">
+                            <h3 class="text-xl font-bold mb-4 text-gray-800">{ "Compartir en Redes" }</h3>
+                            <div class="flex gap-3">
+                                <a 
+                                    href={format!("https://wa.me/?text=¡Ayuda a {}! {}", &kermesse.beneficiary_name, format!("http://127.0.0.1:8000/kermesses/{}", id))}
+                                    target="_blank"
+                                    class="flex-1 bg-green-500 text-white font-bold py-3 px-4 rounded-lg text-center hover:bg-green-600 transition shadow"
+                                >
+                                    { "📱 WhatsApp" }
+                                </a>
+                                <a 
+                                    href={format!("https://www.facebook.com/sharer/sharer.php?u={}", format!("http://127.0.0.1:8000/kermesses/{}", id))}
+                                    target="_blank"
+                                    class="flex-1 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-center hover:bg-blue-700 transition shadow"
+                                >
+                                    { "👍 Facebook" }
+                                </a>
+                            </div>
+                        </div>
+
+                        // Organizer Dashboard (only for organizer)
+                        if is_organizer {
+                            <OrganizerDashboardV2 kermesse_id={id} />
+                        }
+
+                        // Collaboration Request Form
+                        if user_ctx.user.is_some() {
+                            <div class="mb-6">
+                                <CollaborationRequestForm kermesse_id={id} />
+                            </div>
+                        }
+
                         <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">{ "Colaboradores (Vendedores)" }</h2>
-                        <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
                             if detail_data.collaborators.is_empty() {
                                 <p class="text-gray-500 italic text-center py-4">{ "Aún no hay colaboradores registrados." }</p>
                             } else {

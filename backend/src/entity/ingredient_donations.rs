@@ -4,49 +4,39 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "ingredients")]
+#[sea_orm(table_name = "ingredient_donations")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub kermesse_id: i32,
-    pub name: String,
-    pub quantity_needed: Decimal,
-    pub unit: String,
-    pub is_donated: bool,
-    pub donated_by_user_id: Option<i32>,
+    pub ingredient_id: i32,
+    pub user_id: i32,
+    pub quantity_donated: Decimal,
+    pub created_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::ingredient_donations::Entity")]
-    IngredientDonations,
     #[sea_orm(
-        belongs_to = "super::kermesses::Entity",
-        from = "Column::KermesseId",
-        to = "super::kermesses::Column::Id",
+        belongs_to = "super::ingredients::Entity",
+        from = "Column::IngredientId",
+        to = "super::ingredients::Column::Id",
         on_update = "NoAction",
         on_delete = "Cascade"
     )]
-    Kermesses,
+    Ingredients,
     #[sea_orm(
         belongs_to = "super::users::Entity",
-        from = "Column::DonatedByUserId",
+        from = "Column::UserId",
         to = "super::users::Column::Id",
         on_update = "NoAction",
-        on_delete = "SetNull"
+        on_delete = "Cascade"
     )]
     Users,
 }
 
-impl Related<super::ingredient_donations::Entity> for Entity {
+impl Related<super::ingredients::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::IngredientDonations.def()
-    }
-}
-
-impl Related<super::kermesses::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Kermesses.def()
+        Relation::Ingredients.def()
     }
 }
 

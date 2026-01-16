@@ -14,6 +14,10 @@ pub struct Model {
     pub total_amount: Decimal,
     pub status: String,
     pub created_at: DateTimeWithTimeZone,
+    pub delivery_method: String,
+    pub delivery_address: Option<String>,
+    pub contact_phone: Option<String>,
+    pub buyer_id: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -30,12 +34,20 @@ pub enum Relation {
     SaleItems,
     #[sea_orm(
         belongs_to = "super::users::Entity",
+        from = "Column::BuyerId",
+        to = "super::users::Column::Id",
+        on_update = "NoAction",
+        on_delete = "SetNull"
+    )]
+    Users2,
+    #[sea_orm(
+        belongs_to = "super::users::Entity",
         from = "Column::SellerId",
         to = "super::users::Column::Id",
         on_update = "NoAction",
         on_delete = "Cascade"
     )]
-    Users,
+    Users1,
 }
 
 impl Related<super::kermesses::Entity> for Entity {
@@ -47,12 +59,6 @@ impl Related<super::kermesses::Entity> for Entity {
 impl Related<super::sale_items::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SaleItems.def()
-    }
-}
-
-impl Related<super::users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Users.def()
     }
 }
 

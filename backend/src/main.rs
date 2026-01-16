@@ -53,6 +53,8 @@ use actix_cors::Cors;
             .configure(api::auth::config)
             .configure(api::kermesse::config)
             .configure(api::sales::config)
+            .configure(api::collaboration::config)
+            .configure(api::dashboard::config)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

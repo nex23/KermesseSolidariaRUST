@@ -19,6 +19,8 @@ pub struct CreateKermesseRequest {
     pub beneficiary_image_url: Option<String>,
     pub start_time: Option<String>,
     pub end_time: Option<String>,
+    pub financial_goal: Option<rust_decimal::Decimal>,
+    pub qr_code_url: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -32,6 +34,8 @@ pub struct KermesseResponse {
     pub beneficiary_image_url: Option<String>,
     pub start_time: Option<String>,
     pub end_time: Option<String>,
+    pub financial_goal: Option<rust_decimal::Decimal>,
+    pub qr_code_url: Option<String>,
     pub status: String,
     pub organizer_id: i32,
 }
@@ -66,6 +70,8 @@ impl From<kermesses::Model> for KermesseResponse {
             beneficiary_image_url: model.beneficiary_image_url,
             start_time: model.start_time,
             end_time: model.end_time,
+            financial_goal: model.financial_goal,
+            qr_code_url: model.qr_code_url,
             status: model.status,
             organizer_id: model.organizer_id,
         }
@@ -92,6 +98,8 @@ pub async fn create_kermesse(
         beneficiary_image_url: Set(req.beneficiary_image_url.clone()),
         start_time: Set(req.start_time.clone()),
         end_time: Set(req.end_time.clone()),
+        financial_goal: Set(req.financial_goal),
+        qr_code_url: Set(req.qr_code_url.clone()),
         status: Set("ACTIVE".to_string()), // Default to ACTIVE for now for testing
         ..Default::default()
     };

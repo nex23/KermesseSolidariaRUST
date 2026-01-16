@@ -17,6 +17,8 @@ pub struct Kermesse {
     pub beneficiary_image_url: Option<String>,
     pub start_time: Option<String>,
     pub end_time: Option<String>,
+    pub financial_goal: Option<f64>,
+    pub qr_code_url: Option<String>,
 }
 
 use crate::context::UserContext;

@@ -4,6 +4,7 @@ pub mod prelude;
 
 pub mod collaborators;
 pub mod dishes;
+pub mod ingredient_donations;
 pub mod ingredients;
 pub mod kermesses;
 pub mod sale_items;

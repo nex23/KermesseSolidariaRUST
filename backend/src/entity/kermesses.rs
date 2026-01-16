@@ -21,6 +21,8 @@ pub struct Model {
     pub end_time: Option<String>,
     pub status: String,
     pub created_at: DateTimeWithTimeZone,
+    pub financial_goal: Option<Decimal>,
+    pub qr_code_url: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

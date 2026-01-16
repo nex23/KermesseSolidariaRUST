@@ -16,6 +16,8 @@ struct CreateKermesseRequest {
     pub beneficiary_image_url: Option<String>,
     pub start_time: Option<String>,
     pub end_time: Option<String>,
+    pub financial_goal: Option<f64>,
+    pub qr_code_url: Option<String>,
 }
 
 #[function_component(Dashboard)]
@@ -28,6 +30,8 @@ pub fn dashboard() -> Html {
     let start_time_ref = use_node_ref();
     let end_time_ref = use_node_ref();
     let img_url_ref = use_node_ref();
+    let financial_goal_ref = use_node_ref();
+    let qr_code_ref = use_node_ref();
     
     let navigator = use_navigator().unwrap();
     let user_ctx = use_context::<UserContext>().expect("No UserContext found");
@@ -48,6 +52,8 @@ pub fn dashboard() -> Html {
         let start_time_ref = start_time_ref.clone();
         let end_time_ref = end_time_ref.clone();
         let img_url_ref = img_url_ref.clone();
+        let financial_goal_ref = financial_goal_ref.clone();
+        let qr_code_ref = qr_code_ref.clone();
         let token = token.clone();
         let navigator = navigator.clone();
 
@@ -61,10 +67,14 @@ pub fn dashboard() -> Html {
             let start_time = start_time_ref.cast::<HtmlInputElement>().unwrap().value();
             let end_time = end_time_ref.cast::<HtmlInputElement>().unwrap().value();
             let beneficiary_image_url = img_url_ref.cast::<HtmlInputElement>().unwrap().value();
+            let financial_goal_str = financial_goal_ref.cast::<HtmlInputElement>().unwrap().value();
+            let qr_code_url = qr_code_ref.cast::<HtmlInputElement>().unwrap().value();
 
             let start_time = if start_time.is_empty() { None } else { Some(start_time) };
             let end_time = if end_time.is_empty() { None } else { Some(end_time) };
             let beneficiary_image_url = if beneficiary_image_url.is_empty() { None } else { Some(beneficiary_image_url) };
+            let financial_goal = if financial_goal_str.is_empty() { None } else { financial_goal_str.parse::<f64>().ok() };
+            let qr_code_url = if qr_code_url.is_empty() { None } else { Some(qr_code_url) };
 
             let token = token.clone();
             let navigator = navigator.clone();
@@ -78,7 +88,9 @@ pub fn dashboard() -> Html {
                     beneficiary_reason,
                     beneficiary_image_url,
                     start_time,
-                    end_time
+                    end_time,
+                    financial_goal,
+                    qr_code_url,
                 };
                 let body = serde_json::to_string(&request).unwrap();
                 let resp = Request::post("http://127.0.0.1:8080/kermesses")
@@ -149,6 +161,20 @@ pub fn dashboard() -> Html {
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">{ "Motivo / Historia" }</label>
                                 <textarea ref={ben_reason_ref} required=true rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">{ "Meta Financiera y Pagos" }</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">{ "Meta a Recaudar (Bs)" }</label>
+                                <input ref={financial_goal_ref} type="number" step="0.01" placeholder="5000.00" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">{ "URL de QR para Pagos" }</label>
+                                <input ref={qr_code_ref} type="url" placeholder="https://ejemplo.com/qr.png" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
                             </div>
                         </div>
                     </div>

@@ -19,6 +19,9 @@ pub struct CreateSaleRequest {
     pub kermesse_id: i32,
     pub customer_name: String,
     pub items: Vec<SaleItemRequest>,
+    pub delivery_method: String, // "PICKUP" or "DELIVERY"
+    pub delivery_address: Option<String>,
+    pub contact_phone: Option<String>,
 }
 
 pub async fn create_sale(
@@ -79,7 +82,11 @@ pub async fn create_sale(
         kermesse_id: Set(req.kermesse_id),
         seller_id: Set(user.id),
         customer_name: Set(req.customer_name.clone()),
-        total_amount: Set(total_decimal), 
+        total_amount: Set(total_decimal),
+        delivery_method: Set(req.delivery_method.clone()),
+        delivery_address: Set(req.delivery_address.clone()),
+        contact_phone: Set(req.contact_phone.clone()),
+        buyer_id: Set(Some(user.id)), // Assuming logged-in user is the buyer
         status: Set("PENDING".to_string()),
         ..Default::default()
     };

@@ -11,6 +11,8 @@ pub struct Model {
     pub kermesse_id: i32,
     pub user_id: i32,
     pub role: String,
+    pub status: String,
+    pub proposed_role: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

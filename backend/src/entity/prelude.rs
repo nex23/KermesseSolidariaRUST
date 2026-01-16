@@ -2,6 +2,7 @@
 
 pub use super::collaborators::Entity as Collaborators;
 pub use super::dishes::Entity as Dishes;
+pub use super::ingredient_donations::Entity as IngredientDonations;
 pub use super::ingredients::Entity as Ingredients;
 pub use super::kermesses::Entity as Kermesses;
 pub use super::sale_items::Entity as SaleItems;
