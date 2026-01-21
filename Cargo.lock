@@ -1189,6 +1189,7 @@ dependencies = [
 name = "frontend"
 version = "0.1.0"
 dependencies = [
+ "gloo-console 0.3.0",
  "gloo-dialogs 0.2.0",
  "gloo-net 0.5.0",
  "gloo-storage 0.3.0",

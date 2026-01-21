@@ -2,6 +2,9 @@ use yew::prelude::*;
 use serde::{Deserialize, Serialize};
 use gloo_storage::{LocalStorage, Storage};
 
+pub mod cart;
+pub use cart::{CartProvider, CartContext, CartAction, CartItem};
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct User {
     pub username: String,

@@ -18,6 +18,7 @@ pub struct Model {
     pub delivery_address: Option<String>,
     pub contact_phone: Option<String>,
     pub buyer_id: Option<i32>,
+    pub payment_method: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

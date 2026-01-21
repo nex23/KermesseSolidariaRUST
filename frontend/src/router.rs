@@ -16,6 +16,10 @@ pub enum Route {
     Register,
     #[at("/dashboard")]
     Dashboard,
+    #[at("/checkout")]
+    Checkout,
+    #[at("/my-orders")]
+    MyOrders,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -29,6 +33,8 @@ pub fn switch(routes: Route) -> Html {
         Route::Login => html! { <Login /> },
         Route::Register => html! { <Register /> },
         Route::Dashboard => html! { <Dashboard /> },
+        Route::Checkout => html! { <crate::pages::checkout::Checkout /> },
+        Route::MyOrders => html! { <crate::pages::my_orders::MyOrders /> },
         Route::NotFound => html! { <h1>{ "404 Not Found" }</h1> },
     }
 }

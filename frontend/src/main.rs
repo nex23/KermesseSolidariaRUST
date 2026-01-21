@@ -15,9 +15,11 @@ mod components;
 fn app() -> Html {
     html! {
         <UserContextProvider>
-            <BrowserRouter>
-                <Switch<Route> render={switch} />
-            </BrowserRouter>
+            <context::CartProvider>
+                <BrowserRouter>
+                    <Switch<Route> render={switch} />
+                </BrowserRouter>
+            </context::CartProvider>
         </UserContextProvider>
     }
 }

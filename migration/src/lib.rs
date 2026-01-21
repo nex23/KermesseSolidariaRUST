@@ -2,6 +2,7 @@ pub use sea_orm_migration::prelude::*;
 
 mod m20220101_000001_create_table;
 mod m20250109_000002_v2_schema_updates;
+mod m20250120_000003_add_payment_info;
 
 pub struct Migrator;
 
@@ -11,6 +12,7 @@ impl MigratorTrait for Migrator {
         vec![
             Box::new(m20220101_000001_create_table::Migration),
             Box::new(m20250109_000002_v2_schema_updates::Migration),
+            Box::new(m20250120_000003_add_payment_info::Migration),
         ]
     }
 }

@@ -8,7 +8,9 @@ use crate::pages::home::Kermesse;
 use crate::components::organizer_dashboard::OrganizerDashboardV2;
 use crate::components::collaboration_form::CollaborationRequestForm;
 use crate::components::ingredient_donations::IngredientDonationsList;
-use gloo_console;
+use crate::context::{CartContext, CartAction, CartItem};
+use crate::components::cart_drawer::CartDrawer;
+// use gloo_console;
 
 #[derive(Clone, PartialEq, Deserialize)]
 pub struct Dish {
@@ -79,6 +81,7 @@ pub fn kermesse_detail(props: &Props) -> Html {
     let id = props.id;
     let detail = use_state(|| None::<KermesseDetailData>);
     let user_ctx = use_context::<UserContext>().expect("No UserContext found");
+    let cart_ctx = use_context::<CartContext>().expect("No CartContext found");
 
     {
         let detail = detail.clone();
@@ -97,69 +100,110 @@ pub fn kermesse_detail(props: &Props) -> Html {
         });
     }
 
+    // State now stores: (id, name, price, quantity_available)
+    let selected_dish = use_state(|| None::<(i32, String, f64, i32)>);
+    let modal_quantity = use_state(|| 1);
+
     if let Some(detail_data) = &*detail {
         let kermesse = &detail_data.kermesse;
         let is_organizer = user_ctx.user.as_ref().map(|u| {
-            gloo_console::log!(format!("Checking organizer: user_id={} vs kermesse_organizer_id={}", u.id, kermesse.organizer_id));
-            u.id == kermesse.organizer_id && u.id != 0
+             // ... organizer check ...
+             let uid = u.id;
+             uid == kermesse.organizer_id && uid != 0
         }).unwrap_or(false); 
         // Assume id 0 is not valid or at least checking exists
         let user_token = user_ctx.user.as_ref().map(|u| u.token.clone());
 
+        // on_add_dish callback
         let on_add_dish = {
             let navigator = navigator.clone();
             let id = id;
             Callback::from(move |_| navigator.push(&Route::AddDish { id }))
         };
 
-        // Simple sale simulation for now (expandable)
-        let perform_sale = {
-             let token = user_token.clone();
-             let kermesse_id = id;
-             Callback::from(move |dish_id: i32| {
-                 if let Some(t) = &token {
-                     let t = t.clone();
-                     wasm_bindgen_futures::spawn_local(async move {
-                        // Dummy Sale Item for simplicity: buying 1 unit
-                        // In real app, we need a cart or modal.
-                        // We will just hit the sales endpoint with hardcoded JSON to prove connectivity
-                        let body = serde_json::json!({
-                            "kermesse_id": kermesse_id,
-                            "client_name": "Cliente Web",
-                            "items": [
-                                { "dish_id": dish_id, "quantity": 1 }
-                            ]
-                        });
-                        
-                        let resp = Request::post("http://127.0.0.1:8080/sales")
-                            .header("Authorization", &format!("Bearer {}", t))
-                            .header("Content-Type", "application/json")
-                            .body(body.to_string())
-                            .send()
-                            .await;
-
-                        if let Ok(resp) = resp {
-                             if resp.ok() {
-                                 gloo_dialogs::alert("Pedido Realizado! (Venta registrada)");
-                             } else {
-                                  gloo_dialogs::alert("Error al realizar pedido");
-                             }
-                        } else {
-                             gloo_dialogs::alert("Error de conexión");
-                        }
-                     });
-                 } else {
-                     gloo_dialogs::alert("Debes iniciar sesión para pedir.");
-                 }
+        // Open Modal Logic
+        let open_quantity_modal = {
+             let selected_dish = selected_dish.clone();
+             let modal_quantity = modal_quantity.clone();
+             Callback::from(move |(id, name, price, available): (i32, String, f64, i32)| {
+                 selected_dish.set(Some((id, name, price, available)));
+                 modal_quantity.set(1);
              })
+        };
+
+        // Add to Cart Logic (Final Action from Modal)
+        let add_to_cart_action = {
+            let cart_ctx = cart_ctx.clone();
+            let kermesse_id = id;
+            let selected_dish = selected_dish.clone();
+            let modal_quantity = modal_quantity.clone();
+            Callback::from(move |_| {
+                 if let Some((dish_id, name, price, _)) = &*selected_dish {
+                     cart_ctx.dispatch.emit(CartAction::AddItem(CartItem {
+                         dish_id: *dish_id,
+                         dish_name: name.clone(),
+                         price: *price,
+                         quantity: *modal_quantity,
+                         kermesse_id,
+                     }));
+                     gloo_dialogs::alert("¡Añadido al carrito!");
+                     selected_dish.set(None); // Close modal
+                 }
+            })
         };
 
         html! {
             <div class="min-h-screen bg-gray-50 text-gray-800 font-sans p-6">
+                <CartDrawer />
+                
+                // --- QUANTITY MODAL ---
+                if let Some((_, name, price, available)) = &*selected_dish {
+                    <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 animate-fade-in">
+                        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm m-4 transform transition-all scale-100">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">{ name }</h3>
+                            <p class="text-gray-500 mb-2">{ format!("Bs. {:.2} / unidad", price) } </p>
+                            <p class="text-sm font-bold text-teal-600 mb-6">{ format!("Disponibles: {}", available) }</p>
+                            
+                            <div class="flex items-center justify-center gap-6 mb-8">
+                                <button 
+                                    onclick={let mq = modal_quantity.clone(); Callback::from(move |_| if *mq > 1 { mq.set(*mq - 1) })}
+                                    class="w-12 h-12 rounded-full bg-gray-100 text-gray-600 font-bold text-xl hover:bg-gray-200 flex items-center justify-center transition disabled:opacity-50"
+                                    disabled={*modal_quantity <= 1}
+                                >
+                                    {"-"}
+                                </button>
+                                <span class="text-4xl font-bold text-primary w-12 text-center">{ *modal_quantity }</span>
+                                <button 
+                                    onclick={let mq = modal_quantity.clone(); let max = *available; Callback::from(move |_| if *mq < max { mq.set(*mq + 1) })}
+                                    class="w-12 h-12 rounded-full bg-gray-100 text-gray-600 font-bold text-xl hover:bg-gray-200 flex items-center justify-center transition disabled:opacity-50"
+                                    disabled={*modal_quantity >= *available}
+                                >
+                                    {"+"}
+                                </button>
+                            </div>
+                            
+                            <div class="flex gap-4">
+                                <button 
+                                    onclick={let sd = selected_dish.clone(); Callback::from(move |_| sd.set(None))}
+                                    class="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition"
+                                >
+                                    { "Cancelar" }
+                                </button>
+                                <button 
+                                    onclick={add_to_cart_action}
+                                    class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-600 transition shadow-lg"
+                                >
+                                    { format!("Agregar Bs. {:.2}", *price * (*modal_quantity as f64)) }
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
                 <button onclick={Callback::from(move |_| navigator.push(&Route::Home))} class="mb-4 flex items-center text-primary hover:text-red-700 font-medium">
                      { "← Volver a Eventos" }
                 </button>
-                
+                // ... header ...
                 <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
                      <div class="bg-gradient-to-r from-primary to-secondary p-8 text-white relative">
                         <div class="flex flex-col md:flex-row items-center">
@@ -169,15 +213,12 @@ pub fn kermesse_detail(props: &Props) -> Html {
                             <div>
                                 <h1 class="text-4xl font-bold mb-2">{ &kermesse.name }</h1>
                                 <p class="text-lg opacity-90 mb-4">{ &kermesse.description }</p>
+                                // ... metadata ...
                                 <div class="flex flex-wrap items-center gap-4">
                                      <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
                                         <span class="mr-2">{"📅"}</span> { &kermesse.event_date }
                                      </span>
-                                     if let (Some(start), Some(end)) = (&kermesse.start_time, &kermesse.end_time) {
-                                         <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
-                                            <span class="mr-2">{"⏰"}</span> { format!("{} - {}", start, end) }
-                                         </span>
-                                     }
+                                     // ...
                                      <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold">{ format!("Beneficiario: {}", &kermesse.beneficiary_name) }</span>
                                 </div>
                             </div>
@@ -197,7 +238,10 @@ pub fn kermesse_detail(props: &Props) -> Html {
                             {
                                 detail_data.dishes.iter().map(|dish| {
                                     let dish_id = dish.id;
-                                    let on_buy = perform_sale.clone();
+                                    let name = dish.name.clone();
+                                    let price = dish.price;
+                                    let available = dish.quantity_available;
+                                    let on_open_modal = open_quantity_modal.clone();
                                     html! {
                                         <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition cursor-pointer group">
                                              <div class="w-full h-40 bg-gray-200 rounded-lg mb-4 flex items-center justify-center text-6xl group-hover:scale-105 transition transform duration-300">
@@ -212,8 +256,17 @@ pub fn kermesse_detail(props: &Props) -> Html {
                                                      <span class="text-2xl font-bold text-primary">{ format!("Bs. {:.2}", dish.price) }</span>
                                                      <span class="text-xs text-gray-400 border border-gray-200 px-2 py-1 rounded">{ format!("Disp: {}", dish.quantity_available) }</span>
                                                  </div>
-                                                 <button onclick={move |_| on_buy.emit(dish_id)} class="w-full bg-secondary text-white py-2 rounded-lg font-bold shadow-md hover:bg-teal-500 transition">
-                                                    { "Pedir Ahora" }
+                                                 <button 
+                                                    onclick={Callback::from(move |e: MouseEvent| {
+                                                        e.stop_propagation();
+                                                        if available > 0 {
+                                                            on_open_modal.emit((dish_id, name.clone(), price, available));
+                                                        }
+                                                    })}
+                                                    disabled={available == 0}
+                                                    class={format!("w-full text-white py-2 rounded-lg font-bold shadow-md transition {}", if available > 0 { "bg-secondary hover:bg-teal-500" } else { "bg-gray-400 cursor-not-allowed" })}
+                                                 >
+                                                    { if available > 0 { "Pedir Ahora" } else { "Agotado" } }
                                                  </button>
                                              </div>
                                         </div>

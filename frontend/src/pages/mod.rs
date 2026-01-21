@@ -3,3 +3,5 @@ pub mod auth;
 pub mod kermesse_detail;
 pub mod dashboard;
 pub mod add_dish;
+pub mod checkout;
+pub mod my_orders;
