@@ -23,6 +23,8 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     pub financial_goal: Option<Decimal>,
     pub qr_code_url: Option<String>,
+    pub department: Option<String>,
+    pub city: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -21,6 +21,8 @@ pub struct CreateKermesseRequest {
     pub end_time: Option<String>,
     pub financial_goal: Option<rust_decimal::Decimal>,
     pub qr_code_url: Option<String>,
+    pub department: Option<String>,
+    pub city: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -38,6 +40,8 @@ pub struct KermesseResponse {
     pub qr_code_url: Option<String>,
     pub status: String,
     pub organizer_id: i32,
+    pub department: Option<String>,
+    pub city: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -74,6 +78,8 @@ impl From<kermesses::Model> for KermesseResponse {
             qr_code_url: model.qr_code_url,
             status: model.status,
             organizer_id: model.organizer_id,
+            department: model.department,
+            city: model.city,
         }
     }
 }
@@ -100,6 +106,8 @@ pub async fn create_kermesse(
         end_time: Set(req.end_time.clone()),
         financial_goal: Set(req.financial_goal),
         qr_code_url: Set(req.qr_code_url.clone()),
+        department: Set(req.department.clone()),
+        city: Set(req.city.clone()),
         status: Set("ACTIVE".to_string()), // Default to ACTIVE for now for testing
         ..Default::default()
     };
@@ -110,13 +118,26 @@ pub async fn create_kermesse(
     }
 }
 
-pub async fn list_kermesses(data: web::Data<AppState>) -> impl Responder {
+#[derive(Deserialize)]
+pub struct KermesseFilter {
+    pub department: Option<String>,
+}
+
+pub async fn list_kermesses(
+    data: web::Data<AppState>,
+    filter: web::Query<KermesseFilter>,
+) -> impl Responder {
     let conn = &data.conn;
 
-    let kermesses = Kermesses::find()
-        .filter(kermesses::Column::Status.eq("ACTIVE"))
-        .all(conn)
-        .await;
+    let mut query = Kermesses::find().filter(kermesses::Column::Status.eq("ACTIVE"));
+
+    if let Some(dept) = &filter.department {
+        if !dept.is_empty() && dept != "Todos" {
+             query = query.filter(kermesses::Column::Department.eq(dept.clone()));
+        }
+    }
+
+    let kermesses = query.all(conn).await;
 
     match kermesses {
         Ok(list) => {
@@ -241,9 +262,67 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route(web::post().to(create_kermesse)),
     )
     .service(
-        web::resource("/kermesses/{id}").route(web::get().to(get_kermesse)),
+        web::resource("/kermesses/{id}")
+            .route(web::get().to(get_kermesse))
+            .route(web::put().to(update_kermesse)),
     )
     .service(
         web::resource("/kermesses/{id}/dishes").route(web::post().to(create_dish)),
     );
+}
+
+#[derive(Deserialize)]
+pub struct UpdateKermesseRequest {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub event_date: Option<NaiveDate>,
+    pub beneficiary_name: Option<String>,
+    pub beneficiary_reason: Option<String>,
+    pub beneficiary_image_url: Option<String>,
+    pub start_time: Option<String>,
+    pub end_time: Option<String>,
+    pub financial_goal: Option<rust_decimal::Decimal>,
+    pub qr_code_url: Option<String>,
+    pub department: Option<String>,
+    pub city: Option<String>,
+}
+
+pub async fn update_kermesse(
+    path: web::Path<i32>,
+    req: web::Json<UpdateKermesseRequest>,
+    user: AuthenticatedUser,
+    data: web::Data<AppState>,
+) -> impl Responder {
+    let kermesse_id = path.into_inner();
+    let conn = &data.conn;
+
+    let kermesse = match Kermesses::find_by_id(kermesse_id).one(conn).await {
+        Ok(Some(k)) => k,
+        Ok(None) => return HttpResponse::NotFound().body("Kermesse not found"),
+        Err(_) => return HttpResponse::InternalServerError().body("Database error"),
+    };
+
+    if kermesse.organizer_id != user.id {
+        return HttpResponse::Forbidden().body("Only organizer can edit kermesse");
+    }
+
+    let mut kermesse: kermesses::ActiveModel = kermesse.into();
+
+    if let Some(name) = &req.name { kermesse.name = Set(name.clone()); }
+    if let Some(desc) = &req.description { kermesse.description = Set(desc.clone()); }
+    if let Some(date) = req.event_date { kermesse.event_date = Set(date); }
+    if let Some(b_name) = &req.beneficiary_name { kermesse.beneficiary_name = Set(b_name.clone()); }
+    if let Some(b_reason) = &req.beneficiary_reason { kermesse.beneficiary_reason = Set(b_reason.clone()); }
+    if let Some(b_img) = &req.beneficiary_image_url { kermesse.beneficiary_image_url = Set(Some(b_img.clone())); }
+    if let Some(start) = &req.start_time { kermesse.start_time = Set(Some(start.clone())); }
+    if let Some(end) = &req.end_time { kermesse.end_time = Set(Some(end.clone())); }
+    if let Some(goal) = req.financial_goal { kermesse.financial_goal = Set(Some(goal)); }
+    if let Some(qr) = &req.qr_code_url { kermesse.qr_code_url = Set(Some(qr.clone())); }
+    if let Some(dept) = &req.department { kermesse.department = Set(Some(dept.clone())); }
+    if let Some(city) = &req.city { kermesse.city = Set(Some(city.clone())); }
+
+    match kermesse.update(conn).await {
+        Ok(model) => HttpResponse::Ok().json(KermesseResponse::from(model)),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Failed to update: {}", e)),
+    }
 }

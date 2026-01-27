@@ -268,5 +268,49 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     .service(
         web::resource("/ingredients/{id}/donate")
             .route(web::post().to(donate_ingredient)),
+    )
+    .service(
+        web::resource("/my-collaborations")
+            .route(web::get().to(list_my_collaborations)),
     );
+}
+
+#[derive(Serialize)]
+pub struct CollaboratedKermesseResponse {
+    pub id: i32,
+    pub name: String,
+    pub role: String,
+    pub event_date: String,
+}
+
+pub async fn list_my_collaborations(
+    user: AuthenticatedUser,
+    data: web::Data<AppState>,
+) -> impl Responder {
+    let conn = &data.conn;
+
+    let collaborations = match Collaborators::find()
+        .filter(collaborators::Column::UserId.eq(user.id))
+        .filter(collaborators::Column::Status.eq("ACCEPTED"))
+        .find_also_related(kermesses::Entity)
+        .all(conn)
+        .await
+    {
+        Ok(c) => c,
+        Err(_) => return HttpResponse::InternalServerError().body("Database error"),
+    };
+
+    let response: Vec<CollaboratedKermesseResponse> = collaborations
+        .into_iter()
+        .filter_map(|(collab, kermesse_opt)| {
+            kermesse_opt.map(|k| CollaboratedKermesseResponse {
+                id: k.id,
+                name: k.name,
+                role: collab.role,
+                event_date: k.event_date.to_string(),
+            })
+        })
+        .collect();
+
+    HttpResponse::Ok().json(response)
 }

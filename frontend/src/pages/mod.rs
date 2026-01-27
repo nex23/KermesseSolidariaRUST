@@ -5,3 +5,6 @@ pub mod dashboard;
 pub mod add_dish;
 pub mod checkout;
 pub mod my_orders;
+pub mod edit_kermesse;
+pub mod collaborator_dashboard;
+pub mod kermesse_orders;

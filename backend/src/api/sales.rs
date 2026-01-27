@@ -185,14 +185,27 @@ pub async fn update_sale_status(
         Err(_) => return HttpResponse::InternalServerError().body("Database error"),
     };
 
-    // Verify User is Organizer of the Kermesse
+    // Verify User is Organizer OR Collaborator
     let kermesse = match Kermesses::find_by_id(sale.kermesse_id).one(conn).await {
         Ok(Some(k)) => k,
         _ => return HttpResponse::InternalServerError().body("Kermesse lookup error"),
     };
 
-    if kermesse.organizer_id != user.id {
-        return HttpResponse::Forbidden().body("Only organizer can update status");
+    let is_organizer = kermesse.organizer_id == user.id;
+    let is_collaborator = if !is_organizer {
+        let collab = crate::entity::collaborators::Entity::find()
+            .filter(crate::entity::collaborators::Column::KermesseId.eq(sale.kermesse_id))
+            .filter(crate::entity::collaborators::Column::UserId.eq(user.id))
+            .filter(crate::entity::collaborators::Column::Status.eq("ACCEPTED"))
+            .one(conn)
+            .await;
+        matches!(collab, Ok(Some(_)))
+    } else {
+        false
+    };
+
+    if !is_organizer && !is_collaborator {
+        return HttpResponse::Forbidden().body("Only organizer or collaborator can update status");
     }
 
     let mut sale: sales::ActiveModel = sale.into();
@@ -214,14 +227,39 @@ pub struct SaleResponse {
 
 pub async fn list_sales(
     path: web::Path<i32>,
+    user: AuthenticatedUser,
     data: web::Data<AppState>,
 ) -> impl Responder {
     let kermesse_id = path.into_inner();
     let conn = &data.conn;
 
-    // TODO: Verify if user is organizer or collaborator
+    // Verify User is Organizer OR Collaborator
+    let kermesse = match Kermesses::find_by_id(kermesse_id).one(conn).await {
+        Ok(Some(k)) => k,
+        Ok(None) => return HttpResponse::NotFound().body("Kermesse not found"),
+        Err(_) => return HttpResponse::InternalServerError().body("Database error"),
+    };
+
+    let is_organizer = kermesse.organizer_id == user.id;
+    let is_collaborator = if !is_organizer {
+        let collab = crate::entity::collaborators::Entity::find()
+            .filter(crate::entity::collaborators::Column::KermesseId.eq(kermesse_id))
+            .filter(crate::entity::collaborators::Column::UserId.eq(user.id))
+            .filter(crate::entity::collaborators::Column::Status.eq("ACCEPTED"))
+            .one(conn)
+            .await;
+        matches!(collab, Ok(Some(_)))
+    } else {
+        false
+    };
+
+    if !is_organizer && !is_collaborator {
+        return HttpResponse::Forbidden().body("Access denied");
+    }
+
     let sales_list = match Sales::find()
         .filter(sales::Column::KermesseId.eq(kermesse_id))
+        .order_by_desc(sales::Column::CreatedAt)
         .all(conn)
         .await
     {

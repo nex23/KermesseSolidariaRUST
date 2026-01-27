@@ -18,6 +18,8 @@ struct CreateKermesseRequest {
     pub end_time: Option<String>,
     pub financial_goal: Option<f64>,
     pub qr_code_url: Option<String>,
+    pub department: Option<String>,
+    pub city: Option<String>,
 }
 
 #[function_component(Dashboard)]
@@ -32,6 +34,8 @@ pub fn dashboard() -> Html {
     let img_url_ref = use_node_ref();
     let financial_goal_ref = use_node_ref();
     let qr_code_ref = use_node_ref();
+    let dept_ref = use_node_ref();
+    let city_ref = use_node_ref();
     
     let navigator = use_navigator().unwrap();
     let user_ctx = use_context::<UserContext>().expect("No UserContext found");
@@ -54,6 +58,8 @@ pub fn dashboard() -> Html {
         let img_url_ref = img_url_ref.clone();
         let financial_goal_ref = financial_goal_ref.clone();
         let qr_code_ref = qr_code_ref.clone();
+        let dept_ref = dept_ref.clone();
+        let city_ref = city_ref.clone();
         let token = token.clone();
         let navigator = navigator.clone();
 
@@ -69,12 +75,16 @@ pub fn dashboard() -> Html {
             let beneficiary_image_url = img_url_ref.cast::<HtmlInputElement>().unwrap().value();
             let financial_goal_str = financial_goal_ref.cast::<HtmlInputElement>().unwrap().value();
             let qr_code_url = qr_code_ref.cast::<HtmlInputElement>().unwrap().value();
+            let department_val = dept_ref.cast::<HtmlInputElement>().unwrap().value();
+            let city_val = city_ref.cast::<HtmlInputElement>().unwrap().value();
 
             let start_time = if start_time.is_empty() { None } else { Some(start_time) };
             let end_time = if end_time.is_empty() { None } else { Some(end_time) };
             let beneficiary_image_url = if beneficiary_image_url.is_empty() { None } else { Some(beneficiary_image_url) };
             let financial_goal = if financial_goal_str.is_empty() { None } else { financial_goal_str.parse::<f64>().ok() };
             let qr_code_url = if qr_code_url.is_empty() { None } else { Some(qr_code_url) };
+            let department = if department_val.is_empty() { None } else { Some(department_val) };
+            let city = if city_val.is_empty() { None } else { Some(city_val) };
 
             let token = token.clone();
             let navigator = navigator.clone();
@@ -91,6 +101,8 @@ pub fn dashboard() -> Html {
                     end_time,
                     financial_goal,
                     qr_code_url,
+                    department,
+                    city,
                 };
                 let body = serde_json::to_string(&request).unwrap();
                 let resp = Request::post("http://127.0.0.1:8080/kermesses")
@@ -139,6 +151,28 @@ pub fn dashboard() -> Html {
                          <div>
                             <label class="block text-sm font-medium text-gray-700">{ "Hora Fin" }</label>
                             <input ref={end_time_ref} type="time" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">{ "Departamento" }</label>
+                            <select ref={dept_ref} class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border">
+                                <option value="">{ "Seleccionar..." }</option>
+                                <option value="La Paz">{ "La Paz" }</option>
+                                <option value="Santa Cruz">{ "Santa Cruz" }</option>
+                                <option value="Cochabamba">{ "Cochabamba" }</option>
+                                <option value="Oruro">{ "Oruro" }</option>
+                                <option value="Potosí">{ "Potosí" }</option>
+                                <option value="Chuquisaca">{ "Chuquisaca" }</option>
+                                <option value="Tarija">{ "Tarija" }</option>
+                                <option value="Beni">{ "Beni" }</option>
+                                <option value="Pando">{ "Pando" }</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">{ "Ciudad / Localidad" }</label>
+                            <input ref={city_ref} type="text" placeholder="Ej. El Alto, Quillacollo" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
                         </div>
                     </div>
                     

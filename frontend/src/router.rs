@@ -20,6 +20,12 @@ pub enum Route {
     Checkout,
     #[at("/my-orders")]
     MyOrders,
+    #[at("/kermesses/:id/edit")]
+    EditKermesse { id: i32 },
+    #[at("/collaborator-dashboard")]
+    CollaboratorDashboard,
+    #[at("/kermesses/:id/orders")]
+    KermesseOrders { id: i32 },
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -35,6 +41,9 @@ pub fn switch(routes: Route) -> Html {
         Route::Dashboard => html! { <Dashboard /> },
         Route::Checkout => html! { <crate::pages::checkout::Checkout /> },
         Route::MyOrders => html! { <crate::pages::my_orders::MyOrders /> },
+        Route::EditKermesse { id } => html! { <crate::pages::edit_kermesse::EditKermesse kermesse_id={id} /> },
+        Route::CollaboratorDashboard => html! { <crate::pages::collaborator_dashboard::CollaboratorDashboard /> },
+        Route::KermesseOrders { id } => html! { <crate::pages::kermesse_orders::KermesseOrders kermesse_id={id} /> },
         Route::NotFound => html! { <h1>{ "404 Not Found" }</h1> },
     }
 }
