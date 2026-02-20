@@ -127,98 +127,129 @@ pub fn dashboard() -> Html {
     };
 
     html! {
-        <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-             <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b pb-4">{ "Crear Nueva Kermesse" }</h2>
+        <div class="min-h-screen bg-gray-50 font-sans pb-12">
+            // Navbar placeholder if needed, or just padding
+            <div class="bg-white shadow-sm border-b border-gray-100 py-4 px-6 mb-8 flex items-center justify-between">
+                <button onclick={Callback::from(move |_| navigator.push(&Route::Home))} class="flex items-center text-gray-500 hover:text-orange-600 font-bold transition">
+                    <span class="mr-2">{"←"}</span> { "Volver al Inicio" }
+                </button>
+                <h1 class="text-xl font-display font-bold text-gray-800 tracking-tight">{ "Panel de Organizador" }</h1>
+            </div>
+
+             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-orange-500 to-red-600 p-8 text-white text-center">
+                        <h2 class="text-3xl font-display font-bold mb-2">{ "Crear Nueva Kermesse" }</h2>
+                        <p class="opacity-90">{ "Completa la información para lanzar tu evento solidario." }</p>
+                    </div>
                 
-                <form onsubmit={onsubmit} class="space-y-6">
-                    <div class="grid grid-cols-1 md::grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">{ "Nombre del Evento" }</label>
-                            <input ref={name_ref} type="text" required=true class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700">{ "Fecha del Evento" }</label>
-                            <input ref={date_ref} type="date" required=true class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
-                        </div>
-                    </div>
-
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">{ "Hora Inicio" }</label>
-                            <input ref={start_time_ref} type="time" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700">{ "Hora Fin" }</label>
-                            <input ref={end_time_ref} type="time" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">{ "Departamento" }</label>
-                            <select ref={dept_ref} class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border">
-                                <option value="">{ "Seleccionar..." }</option>
-                                <option value="La Paz">{ "La Paz" }</option>
-                                <option value="Santa Cruz">{ "Santa Cruz" }</option>
-                                <option value="Cochabamba">{ "Cochabamba" }</option>
-                                <option value="Oruro">{ "Oruro" }</option>
-                                <option value="Potosí">{ "Potosí" }</option>
-                                <option value="Chuquisaca">{ "Chuquisaca" }</option>
-                                <option value="Tarija">{ "Tarija" }</option>
-                                <option value="Beni">{ "Beni" }</option>
-                                <option value="Pando">{ "Pando" }</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">{ "Ciudad / Localidad" }</label>
-                            <input ref={city_ref} type="text" placeholder="Ej. El Alto, Quillacollo" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">{ "Descripción General" }</label>
-                        <textarea ref={desc_ref} required=true rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border"></textarea>
-                    </div>
-
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">{ "Información del Beneficiario" }</h3>
-                        <div class="space-y-4">
+                    <form onsubmit={onsubmit} class="p-8 space-y-8">
+                        // Section: Event Details
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-bold text-gray-800 border-b pb-2 flex items-center gap-2">
+                                <span class="text-orange-500">{"📅"}</span> { "Detalles del Evento" }
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "Nombre del Evento" }</label>
+                                    <input ref={name_ref} type="text" required=true placeholder="Ej. Gran Kermesse Solidaria" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none" />
+                                </div>
+                                 <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "Fecha del Evento" }</label>
+                                    <input ref={date_ref} type="date" required=true class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none" />
+                                </div>
+                            </div>
+    
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "Hora Inicio" }</label>
+                                    <input ref={start_time_ref} type="time" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none" />
+                                </div>
+                                 <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "Hora Fin" }</label>
+                                    <input ref={end_time_ref} type="time" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none" />
+                                </div>
+                            </div>
+    
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "Departamento" }</label>
+                                    <div class="relative">
+                                        <select ref={dept_ref} class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none appearance-none">
+                                            <option value="">{ "Seleccionar..." }</option>
+                                            <option value="La Paz">{ "La Paz" }</option>
+                                            <option value="Santa Cruz">{ "Santa Cruz" }</option>
+                                            <option value="Cochabamba">{ "Cochabamba" }</option>
+                                            <option value="Oruro">{ "Oruro" }</option>
+                                            <option value="Potosí">{ "Potosí" }</option>
+                                            <option value="Chuquisaca">{ "Chuquisaca" }</option>
+                                            <option value="Tarija">{ "Tarija" }</option>
+                                            <option value="Beni">{ "Beni" }</option>
+                                            <option value="Pando">{ "Pando" }</option>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "Ciudad / Localidad" }</label>
+                                    <input ref={city_ref} type="text" placeholder="Ej. El Alto, Quillacollo" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none" />
+                                </div>
+                            </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">{ "Nombre del Beneficiario" }</label>
-                                <input ref={ben_name_ref} type="text" required=true class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
-                            </div>
-                             <div>
-                                <label class="block text-sm font-medium text-gray-700">{ "URL Foto del Beneficiario" }</label>
-                                <input ref={img_url_ref} type="url" placeholder="https://ejemplo.com/foto.jpg" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">{ "Motivo / Historia" }</label>
-                                <textarea ref={ben_reason_ref} required=true rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border"></textarea>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">{ "Descripción General" }</label>
+                                <textarea ref={desc_ref} required=true rows="3" placeholder="Describe de qué trata el evento..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none"></textarea>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">{ "Meta Financiera y Pagos" }</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">{ "Meta a Recaudar (Bs)" }</label>
-                                <input ref={financial_goal_ref} type="number" step="0.01" placeholder="5000.00" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">{ "URL de QR para Pagos" }</label>
-                                <input ref={qr_code_ref} type="url" placeholder="https://ejemplo.com/qr.png" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border" />
+    
+                        // Section: Beneficiary
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-bold text-gray-800 border-b pb-2 flex items-center gap-2">
+                                <span class="text-orange-500">{"❤️"}</span> { "Información del Beneficiario" }
+                            </h3>
+                            <div class="bg-orange-50 p-6 rounded-2xl border border-orange-100 space-y-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "Nombre del Beneficiario" }</label>
+                                    <input ref={ben_name_ref} type="text" required=true placeholder="Nombre de la persona o causa" class="w-full bg-white border border-orange-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none" />
+                                </div>
+                                 <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "URL Foto del Beneficiario" }</label>
+                                    <input ref={img_url_ref} type="url" placeholder="https://ejemplo.com/foto.jpg" class="w-full bg-white border border-orange-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">{ "Motivo / Historia" }</label>
+                                    <textarea ref={ben_reason_ref} required=true rows="2" placeholder="¿Por qué necesitamos ayuda?" class="w-full bg-white border border-orange-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition outline-none"></textarea>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-red-500 transition transform hover:scale-[1.02]">
-                            { "Publicar Kermesse" }
-                        </button>
-                    </div>
-                </form>
+    
+                        // Section: Financial
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-bold text-gray-800 border-b pb-2 flex items-center gap-2">
+                                <span class="text-orange-500">{"💰"}</span> { "Meta Financiera" }
+                            </h3>
+                            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 space-y-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-blue-900 mb-1">{ "Meta a Recaudar (Bs)" }</label>
+                                    <input ref={financial_goal_ref} type="number" step="0.01" placeholder="5000.00" class="w-full bg-white border border-blue-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none font-bold text-blue-800" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-blue-900 mb-1">{ "URL de QR para Pagos" }</label>
+                                    <input ref={qr_code_ref} type="url" placeholder="https://ejemplo.com/qr.png" class="w-full bg-white border border-blue-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none" />
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="pt-6">
+                            <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg hover:shadow-orange-500/30 hover:to-red-700 transition transform hover:-translate-y-1 active:scale-95">
+                                { "🚀 Publicar Kermesse" }
+                            </button>
+                        </div>
+                    </form>
+                </div>
              </div>
         </div>
     }

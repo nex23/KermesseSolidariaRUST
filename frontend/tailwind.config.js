@@ -6,13 +6,19 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: '#FF6B6B', // Vibrant Red/Coral
-                secondary: '#4ECDC4', // Teal
-                dark: '#2D3436',
-                light: '#F7F7F7',
+                primary: '#F97316', // Orange-500
+                secondary: '#0D9488', // Teal-600
+                dark: '#1F2937', // Gray-800
+                light: '#F9FAFB', // Gray-50
+                kermesse: {
+                    red: '#DC2626',
+                    orange: '#EA580C',
+                    yellow: '#FACC15',
+                }
             },
             fontFamily: {
-                sans: ['Roboto', 'sans-serif'],
+                sans: ['Inter', 'sans-serif'],
+                display: ['Outfit', 'sans-serif'],
             },
         },
     },

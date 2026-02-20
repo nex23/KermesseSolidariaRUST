@@ -153,29 +153,35 @@ pub fn kermesse_detail(props: &Props) -> Html {
         };
 
         html! {
-            <div class="min-h-screen bg-gray-50 text-gray-800 font-sans p-6">
+            <div class="min-h-screen bg-gray-50 text-gray-800 font-sans pb-12">
                 <CartDrawer />
                 
                 // --- QUANTITY MODAL ---
                 if let Some((_, name, price, available)) = &*selected_dish {
-                    <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 animate-fade-in">
-                        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm m-4 transform transition-all scale-100">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-2">{ name }</h3>
-                            <p class="text-gray-500 mb-2">{ format!("Bs. {:.2} / unidad", price) } </p>
-                            <p class="text-sm font-bold text-teal-600 mb-6">{ format!("Disponibles: {}", available) }</p>
+                    <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
+                        <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm transform transition-all scale-100 border border-gray-100">
+                            <div class="text-center mb-6">
+                                <h3 class="text-3xl font-display font-bold text-gray-900 mb-2">{ name }</h3>
+                                <p class="text-gray-500 font-medium">{ format!("Bs. {:.2} / unidad", price) } </p>
+                            </div>
+                            
+                            <div class="bg-teal-50 rounded-xl p-4 mb-8 flex flex-col items-center">
+                                <span class="text-sm font-bold text-teal-800 uppercase tracking-wider mb-1">{"Disponibles"}</span>
+                                <span class="text-2xl font-bold text-teal-600">{ available }</span>
+                            </div>
                             
                             <div class="flex items-center justify-center gap-6 mb-8">
                                 <button 
                                     onclick={let mq = modal_quantity.clone(); Callback::from(move |_| if *mq > 1 { mq.set(*mq - 1) })}
-                                    class="w-12 h-12 rounded-full bg-gray-100 text-gray-600 font-bold text-xl hover:bg-gray-200 flex items-center justify-center transition disabled:opacity-50"
+                                    class="w-14 h-14 rounded-full bg-gray-100 text-gray-600 font-bold text-2xl hover:bg-orange-100 hover:text-orange-600 flex items-center justify-center transition disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={*modal_quantity <= 1}
                                 >
                                     {"-"}
                                 </button>
-                                <span class="text-4xl font-bold text-primary w-12 text-center">{ *modal_quantity }</span>
+                                <span class="text-5xl font-display font-bold text-gray-800 w-16 text-center">{ *modal_quantity }</span>
                                 <button 
                                     onclick={let mq = modal_quantity.clone(); let max = *available; Callback::from(move |_| if *mq < max { mq.set(*mq + 1) })}
-                                    class="w-12 h-12 rounded-full bg-gray-100 text-gray-600 font-bold text-xl hover:bg-gray-200 flex items-center justify-center transition disabled:opacity-50"
+                                    class="w-14 h-14 rounded-full bg-gray-100 text-gray-600 font-bold text-2xl hover:bg-orange-100 hover:text-orange-600 flex items-center justify-center transition disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={*modal_quantity >= *available}
                                 >
                                     {"+"}
@@ -185,13 +191,13 @@ pub fn kermesse_detail(props: &Props) -> Html {
                             <div class="flex gap-4">
                                 <button 
                                     onclick={let sd = selected_dish.clone(); Callback::from(move |_| sd.set(None))}
-                                    class="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition"
+                                    class="flex-1 bg-white border-2 border-gray-200 text-gray-600 font-bold py-3 rounded-xl hover:bg-gray-50 transition"
                                 >
                                     { "Cancelar" }
                                 </button>
                                 <button 
                                     onclick={add_to_cart_action}
-                                    class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-600 transition shadow-lg"
+                                    class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:to-red-700 transition transform active:scale-95"
                                 >
                                     { format!("Agregar Bs. {:.2}", *price * (*modal_quantity as f64)) }
                                 </button>
@@ -200,146 +206,193 @@ pub fn kermesse_detail(props: &Props) -> Html {
                     </div>
                 }
 
-                <button onclick={Callback::from(move |_| navigator.push(&Route::Home))} class="mb-4 flex items-center text-primary hover:text-red-700 font-medium">
-                     { "← Volver a Eventos" }
-                </button>
-                // ... header ...
-                <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
-                     <div class="bg-gradient-to-r from-primary to-secondary p-8 text-white relative">
-                        <div class="flex flex-col md:flex-row items-center">
+                // --- HEADER / BANNER ---
+                <div class="relative bg-gradient-to-br from-gray-900 to-gray-800 text-white pb-32 pt-24 overflow-hidden">
+                    <div class="absolute inset-0 opacity-20 bg-[url('/pattern.svg')]"></div>
+                    <div class="container mx-auto px-6 relative z-10">
+                        <button onclick={Callback::from(move |_| navigator.push(&Route::Home))} class="absolute top-8 left-6 md:left-0 flex items-center text-white/70 hover:text-white font-medium transition">
+                             <span class="mr-2">{"←"}</span> { "Volver a Eventos" }
+                        </button>
+
+                        <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
                             if let Some(img_url) = &kermesse.beneficiary_image_url {
-                                <img src={img_url.clone()} alt={kermesse.beneficiary_name.clone()} class="w-32 h-32 rounded-full border-4 border-white shadow-lg mb-4 md:mb-0 md:mr-8 object-cover" />
+                                <img src={img_url.clone()} alt={kermesse.beneficiary_name.clone()} class="w-40 h-40 md:w-48 md:h-48 rounded-full border-4 border-white/20 shadow-2xl object-cover shrink-0" />
                             }
-                            <div>
-                                <h1 class="text-4xl font-bold mb-2">{ &kermesse.name }</h1>
-                                <p class="text-lg opacity-90 mb-4">{ &kermesse.description }</p>
-                                // ... metadata ...
-                                <div class="flex flex-wrap items-center gap-4">
-                                     <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
-                                        <span class="mr-2">{"📅"}</span> { &kermesse.event_date }
+                            <div class="text-center md:text-left flex-grow">
+                                <div class="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
+                                    <h1 class="text-4xl md:text-6xl font-display font-extrabold mb-4 leading-tight">{ &kermesse.name }</h1>
+                                    if is_organizer {
+                                        <button onclick={on_add_dish} class="bg-white/10 backdrop-blur border border-white/30 text-white font-bold py-2 px-6 rounded-full hover:bg-white hover:text-gray-900 transition flex items-center gap-2">
+                                            <span>{"+"}</span> { "Agregar Plato" }
+                                        </button>
+                                    }
+                                </div>
+                                <p class="text-xl md:text-2xl text-gray-300 font-light max-w-2xl mb-8 leading-relaxed">{ &kermesse.description }</p>
+                                
+                                <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                                     <span class="bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 border border-white/10">
+                                        <span>{"📅"}</span> { &kermesse.event_date }
                                      </span>
-                                     // ...
-                                     <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold">{ format!("Beneficiario: {}", &kermesse.beneficiary_name) }</span>
+                                     <span class="bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 border border-white/10">
+                                        <span>{"👤"}</span> { &kermesse.beneficiary_name }
+                                     </span>
+                                     if let (Some(c), Some(d)) = (&kermesse.city, &kermesse.department) {
+                                        <span class="bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 border border-white/10">
+                                            <span>{"📍"}</span> { format!("{}, {}", c, d) }
+                                        </span>
+                                     }
                                 </div>
                             </div>
                         </div>
-                        if is_organizer {
-                            <button onclick={on_add_dish} class="absolute top-8 right-8 bg-white text-secondary font-bold py-2 px-4 rounded-xl hover:bg-gray-100 transition shadow-lg hidden md:block">
-                                { "+ Agregar Plato" }
-                            </button>
-                        }
-                     </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                     <div class="lg:col-span-2">
-                        <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">{ "Menú del Día" }</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {
-                                detail_data.dishes.iter().map(|dish| {
-                                    let dish_id = dish.id;
-                                    let name = dish.name.clone();
-                                    let price = dish.price;
-                                    let available = dish.quantity_available;
-                                    let on_open_modal = open_quantity_modal.clone();
-                                    html! {
-                                        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition cursor-pointer group">
-                                             <div class="w-full h-40 bg-gray-200 rounded-lg mb-4 flex items-center justify-center text-6xl group-hover:scale-105 transition transform duration-300">
-                                                { if let Some(img) = &dish.image_url { html!{ <img src={img.clone()} class="w-full h-full object-cover rounded-lg"/> } } else { html!{"🍛"} } }
-                                             </div>
-                                             
-                                             <h3 class="text-xl font-bold text-gray-900 mb-1">{ &dish.name }</h3>
-                                             <p class="text-gray-500 text-sm mb-4 line-clamp-2">{ &dish.description }</p>
-                                             
-                                             <div class="mt-auto w-full">
-                                                 <div class="flex justify-between items-center mb-4 px-2">
-                                                     <span class="text-2xl font-bold text-primary">{ format!("Bs. {:.2}", dish.price) }</span>
-                                                     <span class="text-xs text-gray-400 border border-gray-200 px-2 py-1 rounded">{ format!("Disp: {}", dish.quantity_available) }</span>
-                                                 </div>
-                                                 <button 
-                                                    onclick={Callback::from(move |e: MouseEvent| {
-                                                        e.stop_propagation();
-                                                        if available > 0 {
-                                                            on_open_modal.emit((dish_id, name.clone(), price, available));
-                                                        }
-                                                    })}
-                                                    disabled={available == 0}
-                                                    class={format!("w-full text-white py-2 rounded-lg font-bold shadow-md transition {}", if available > 0 { "bg-secondary hover:bg-teal-500" } else { "bg-gray-400 cursor-not-allowed" })}
-                                                 >
-                                                    { if available > 0 { "Pedir Ahora" } else { "Agotado" } }
-                                                 </button>
-                                             </div>
-                                        </div>
-                                    }
-                                }).collect::<Html>()
-                            }
-                        </div>
-                    </div>
-
-                    <div>
-                        // Social Sharing Buttons
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-md p-6 mb-6">
-                            <h3 class="text-xl font-bold mb-4 text-gray-800">{ "Compartir en Redes" }</h3>
-                            <div class="flex gap-3">
-                                <a 
-                                    href={format!("https://wa.me/?text=¡Ayuda a {}! {}", &kermesse.beneficiary_name, format!("http://127.0.0.1:8000/kermesses/{}", id))}
-                                    target="_blank"
-                                    class="flex-1 bg-green-500 text-white font-bold py-3 px-4 rounded-lg text-center hover:bg-green-600 transition shadow"
-                                >
-                                    { "📱 WhatsApp" }
-                                </a>
-                                <a 
-                                    href={format!("https://www.facebook.com/sharer/sharer.php?u={}", format!("http://127.0.0.1:8000/kermesses/{}", id))}
-                                    target="_blank"
-                                    class="flex-1 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-center hover:bg-blue-700 transition shadow"
-                                >
-                                    { "👍 Facebook" }
-                                </a>
-                            </div>
-                        </div>
-
-                        // Organizer Dashboard (only for organizer)
-                        if is_organizer {
-                            <OrganizerDashboardV2 kermesse_id={id} />
-                        }
-
-                        // Collaboration Request Form
-                        if user_ctx.user.is_some() {
-                            <div class="mb-6">
-                                <CollaborationRequestForm kermesse_id={id} />
-                            </div>
-                        }
-
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">{ "Colaboradores (Vendedores)" }</h2>
-                        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                            if detail_data.collaborators.is_empty() {
-                                <p class="text-gray-500 italic text-center py-4">{ "Aún no hay colaboradores registrados." }</p>
-                            } else {
-                                <ul class="space-y-4">
+                <div class="container mx-auto px-6 -mt-20 relative z-20">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                         // --- MENU ---
+                         <div class="lg:col-span-2">
+                            <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                                <h2 class="text-3xl font-display font-bold mb-8 text-gray-800 flex items-center gap-3">
+                                    <span class="text-orange-500">{"🍽️"}</span> { "Menú del Día" }
+                                </h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {
-                                        detail_data.collaborators.iter().filter(|c| c.role == "SELLER").map(|collaborator| {
+                                        detail_data.dishes.iter().map(|dish| {
+                                            let dish_id = dish.id;
+                                            let name = dish.name.clone();
+                                            let price = dish.price;
+                                            let available = dish.quantity_available;
+                                            let on_open_modal = open_quantity_modal.clone();
                                             html! {
-                                                <li class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                                                    <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
-                                                        { collaborator.full_name.chars().next().unwrap_or('?') }
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold text-gray-900">{ &collaborator.full_name }</p>
-                                                        <p class="text-xs text-gray-500">{ format!("Tel: {}", &collaborator.phone) }</p>
-                                                    </div>
-                                                    <a href={format!("https://wa.me/{}", collaborator.phone.replace(" ", ""))} target="_blank" class="ml-auto text-green-500 hover:text-green-600">
-                                                        <span class="text-xl">{"💬"}</span>
-                                                    </a>
-                                                </li>
+                                                <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100 flex flex-col group h-full">
+                                                     <div class="h-48 bg-gray-100 overflow-hidden relative">
+                                                        if let Some(img) = &dish.image_url { 
+                                                            <img src={img.clone()} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/> 
+                                                        } else {
+                                                            <div class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-orange-50 to-orange-100 text-orange-200">
+                                                                {"🍲"}
+                                                            </div>
+                                                        }
+                                                        if available == 0 {
+                                                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                                                                <span class="text-white font-bold text-xl uppercase tracking-widest border-2 border-white px-4 py-2 rounded">{ "Agotado" }</span>
+                                                            </div>
+                                                        }
+                                                     </div>
+                                                     
+                                                     <div class="p-6 flex flex-col flex-grow">
+                                                         <div class="flex justify-between items-start mb-2">
+                                                            <h3 class="text-xl font-bold text-gray-900 leading-tight">{ &dish.name }</h3>
+                                                            <span class="font-display font-bold text-lg text-primary">{ format!("Bs. {:.0}", dish.price) }</span>
+                                                         </div>
+                                                         
+                                                         <p class="text-gray-500 text-sm mb-6 line-clamp-2 flex-grow">{ &dish.description }</p>
+                                                         
+                                                         <button 
+                                                            onclick={Callback::from(move |e: MouseEvent| {
+                                                                e.stop_propagation();
+                                                                if available > 0 {
+                                                                    on_open_modal.emit((dish_id, name.clone(), price, available));
+                                                                }
+                                                            })}
+                                                            disabled={available == 0}
+                                                            class={format!("w-full py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 group-btn {}", 
+                                                                if available > 0 { 
+                                                                    "bg-orange-50 text-orange-600 hover:bg-orange-500 hover:text-white" 
+                                                                } else { 
+                                                                    "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                                                                }
+                                                            )}
+                                                         >
+                                                            { if available > 0 { "Agregar al Pedido" } else { "No disponible" } }
+                                                            if available > 0 { <span class="group-btn-hover:translate-x-1 transition-transform">{"→"}</span> }
+                                                         </button>
+                                                     </div>
+                                                </div>
                                             }
                                         }).collect::<Html>()
                                     }
-                                </ul>
-                            }
-                            <div class="mt-6 p-4 bg-yellow-50 rounded-lg text-sm text-yellow-800">
-                                <p class="font-bold mb-1">{ "ℹ️ ¿Cómo comprar?" }</p>
-                                { "Contacta a uno de los colaboradores listados arriba para realizar tu pedido o reserva." }
+                                </div>
                             </div>
+                        </div>
+
+                        // --- SIDEBAR ---
+                        <div class="space-y-6">
+                            // Share Card
+                            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-xl p-8 text-white text-center">
+                                <h3 class="text-2xl font-bold mb-2">{ "¡Comparte y Ayuda!" }</h3>
+                                <p class="mb-6 opacity-90 text-sm">{ "Invita a tus amigos y familiares a participar en esta noble causa." }</p>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <a 
+                                        href={format!("https://wa.me/?text=¡Ayuda a {}! {}", &kermesse.beneficiary_name, format!("http://127.0.0.1:8000/kermesses/{}", id))}
+                                        target="_blank"
+                                        class="bg-white/20 hover:bg-white/30 backdrop-blur border border-white/20 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2"
+                                    >
+                                        <span>{"📱"}</span> { "WhatsApp" }
+                                    </a>
+                                    <a 
+                                        href={format!("https://www.facebook.com/sharer/sharer.php?u={}", format!("http://127.0.0.1:8000/kermesses/{}", id))}
+                                        target="_blank"
+                                        class="bg-white/20 hover:bg-white/30 backdrop-blur border border-white/20 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2"
+                                    >
+                                        <span>{"Fb"}</span> { "Facebook" }
+                                    </a>
+                                </div>
+                            </div>
+
+                            // Collaborators
+                            <div class="bg-white rounded-3xl shadow-xl p-8">
+                                <h3 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+                                    <span class="text-secondary">{"👥"}</span> { "Vendedores" }
+                                </h3>
+                                
+                                <div class="space-y-4">
+                                    if detail_data.collaborators.is_empty() {
+                                        <div class="text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                            <p class="text-gray-400 font-medium">{ "No hay vendedores aún." }</p>
+                                        </div>
+                                    } else {
+                                        {
+                                            detail_data.collaborators.iter().filter(|c| c.role == "SELLER").map(|collaborator| {
+                                                html! {
+                                                    <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl hover:bg-white hover:shadow-md transition border border-transparent hover:border-gray-100">
+                                                        <div class="w-12 h-12 bg-gradient-to-br from-secondary to-teal-400 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-md shrink-0">
+                                                            { collaborator.full_name.chars().next().unwrap_or('?') }
+                                                        </div>
+                                                        <div class="overflow-hidden">
+                                                            <p class="font-bold text-gray-900 truncate">{ &collaborator.full_name }</p>
+                                                            <p class="text-xs text-gray-500 flex items-center gap-1">
+                                                                <span>{"📞"}</span>
+                                                                { &collaborator.phone }
+                                                            </p>
+                                                        </div>
+                                                        <a href={format!("https://wa.me/{}", collaborator.phone.replace(" ", ""))} target="_blank" class="ml-auto bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-white transition">
+                                                            {"💬"}
+                                                        </a>
+                                                    </div>
+                                                }
+                                            }).collect::<Html>()
+                                        }
+                                    }
+                                </div>
+                                <div class="mt-6 p-4 bg-amber-50 rounded-xl text-xs text-amber-800 border border-amber-100 flex gap-3">
+                                    <span class="text-xl">{"ℹ️"}</span>
+                                    <p>{ "Contacta a uno de los colaboradores listados arriba para realizar tu pedido o reserva directamente." }</p>
+                                </div>
+                            </div>
+
+                            // Organizer Dashboard (only for organizer)
+                            if is_organizer {
+                                <OrganizerDashboardV2 kermesse_id={id} />
+                            }
+
+                            // Collaboration Request Form
+                            if user_ctx.user.is_some() {
+                                <div class="bg-blue-50 rounded-3xl p-6 border border-blue-100">
+                                    <h4 class="font-bold text-blue-900 mb-2">{ "¿Quieres ayudar?" }</h4>
+                                    <CollaborationRequestForm kermesse_id={id} />
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

@@ -126,38 +126,50 @@ pub fn home() -> Html {
             </nav>
 
             // Hero Section
-            <header class="relative bg-white overflow-hidden">
-                <div class="absolute inset-0 z-0 opacity-10 bg-pattern"></div>
-                <div class="container mx-auto px-6 py-12 relative z-10 text-center">
-                    <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight text-dark">
-                        { "Ayudemos " } <span class="text-primary">{ "Juntos" }</span>
+            <header class="relative bg-gradient-to-br from-orange-50 to-orange-100 overflow-hidden">
+                <div class="absolute inset-0 z-0 opacity-10 bg-[url('/pattern.svg')]"></div>
+                <div class="container mx-auto px-6 py-24 relative z-10 text-center">
+                    <span class="inline-block py-1 px-3 rounded-full bg-orange-200 text-orange-800 text-sm font-bold mb-4 animate-pulse">
+                        { "🎉 ¡La fiesta solidaria de Bolivia!" }
+                    </span>
+                    <h1 class="text-6xl md:text-7xl font-display font-extrabold mb-6 leading-tight text-dark tracking-tight">
+                        { "Ayudemos " } 
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600">
+                            { "Juntos" }
+                        </span>
                     </h1>
-                    <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                        { "Encuentra kermesses solidarias cerca de ti." }
+                    <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
+                        { "Disfruta de la mejor gastronomía mientras colaboras con causas nobles. Encuentra kermesses cerca de ti." }
                     </p>
                     
-                    // Location Filter
-                    <div class="max-w-md mx-auto bg-white p-2 rounded-full shadow-xl border border-gray-100 flex items-center gap-2">
-                        <div class="pl-4 text-gray-400">
+                    // Location Filter - Floating Pill
+                    <div class="max-w-2xl mx-auto bg-white p-2 rounded-full shadow-2xl shadow-orange-200/50 border border-gray-100 flex items-center gap-2 transform transition hover:scale-[1.01]">
+                        <div class="pl-6 text-orange-500 text-xl">
                             <span>{"📍"}</span>
                         </div>
-                        <select 
-                            onchange={on_change_dept} 
-                            class="flex-grow bg-transparent border-none focus:ring-0 text-gray-700 font-medium cursor-pointer"
-                        >
-                            <option value="Todos">{ "Todo Bolivia" }</option>
-                            <option value="La Paz">{ "La Paz" }</option>
-                            <option value="Santa Cruz">{ "Santa Cruz" }</option>
-                            <option value="Cochabamba">{ "Cochabamba" }</option>
-                            <option value="Oruro">{ "Oruro" }</option>
-                            <option value="Potosí">{ "Potosí" }</option>
-                            <option value="Chuquisaca">{ "Chuquisaca" }</option>
-                            <option value="Tarija">{ "Tarija" }</option>
-                            <option value="Beni">{ "Beni" }</option>
-                            <option value="Pando">{ "Pando" }</option>
-                        </select>
-                        <button onclick={on_detect_location} class="bg-gray-100 text-gray-600 p-2 rounded-full hover:bg-gray-200 transition" title="Usar mi ubicación actual">
-                            {"🎯"}
+                        <div class="flex-grow flex flex-col items-start pl-2">
+                             <label class="text-xs text-gray-400 font-bold uppercase tracking-wider">{ "Ubicación" }</label>
+                             <select 
+                                onchange={on_change_dept} 
+                                class="w-full bg-transparent border-none focus:ring-0 text-gray-800 font-bold text-lg cursor-pointer p-0"
+                            >
+                                <option value="Todos">{ "Todo Bolivia" }</option>
+                                <option value="La Paz">{ "La Paz" }</option>
+                                <option value="Santa Cruz">{ "Santa Cruz" }</option>
+                                <option value="Cochabamba">{ "Cochabamba" }</option>
+                                <option value="Oruro">{ "Oruro" }</option>
+                                <option value="Potosí">{ "Potosí" }</option>
+                                <option value="Chuquisaca">{ "Chuquisaca" }</option>
+                                <option value="Tarija">{ "Tarija" }</option>
+                                <option value="Beni">{ "Beni" }</option>
+                                <option value="Pando">{ "Pando" }</option>
+                            </select>
+                        </div>
+                        <button onclick={on_detect_location} class="bg-gray-100 text-gray-600 p-4 rounded-full hover:bg-orange-100 hover:text-orange-600 transition duration-300 group" title="Usar mi ubicación">
+                            <span class="group-hover:rotate-12 transition-transform block">{"🎯"}</span>
+                        </button>
+                        <button class="bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-orange-500/30 hover:to-red-700 transition duration-300">
+                            { "Buscar" }
                         </button>
                     </div>
                 </div>
@@ -183,31 +195,49 @@ pub fn home() -> Html {
                             kermesses.iter().map(|k: &Kermesse| {
                                 let id = k.id;
                                 html! {
-                                    <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100 flex flex-col h-full">
-                                        <div class="h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                            <span class="text-4xl">{"🍲"}</span>
+                                    <div class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100 flex flex-col h-full group">
+                                        // Image / Gradient Placeholder
+                                        <div class="h-56 bg-gradient-to-br from-orange-100 to-red-50 flex items-center justify-center relative overflow-hidden">
+                                            <div class="absolute inset-0 bg-white/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center">
+                                                <button onclick={on_click_detail(id)} class="bg-white text-orange-600 font-bold py-2 px-6 rounded-full shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                                                    { "Ver Detalles" }
+                                                </button>
+                                            </div>
+                                            <span class="text-6xl group-hover:scale-110 transition-transform duration-500">{"🍲"}</span>
+                                            
+                                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm text-sm font-bold text-gray-700 z-0">
+                                                { "📅 " }{ &k.event_date }
+                                            </div>
                                         </div>
-                                        <div class="p-6 flex-grow flex flex-col">
-                                            <div class="flex justify-between items-start mb-2">
-                                                 <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-green-200 dark:text-green-900">
+                                        
+                                        <div class="p-8 flex-grow flex flex-col">
+                                            <div class="flex justify-between items-start mb-3">
+                                                 <span class={format!("text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide {}", 
+                                                    if k.status == "ACTIVE" { "bg-green-100 text-green-700" } else { "bg-gray-100 text-gray-600" }
+                                                 )}>
                                                     { &k.status }
                                                 </span>
-                                                <span class="text-sm text-gray-500 font-medium">{ &k.event_date }</span>
                                             </div>
-                                            <h3 class="text-2xl font-bold mb-1 text-gray-800">{ &k.name }</h3>
+                                            
+                                            <h3 class="text-2xl font-display font-bold mb-2 text-gray-900 leading-tight group-hover:text-orange-600 transition-colors">
+                                                { &k.name }
+                                            </h3>
                                             
                                             if let (Some(dept), Some(city)) = (&k.department, &k.city) {
-                                                <div class="flex items-center gap-1 mb-2 text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                                                    <span>{"📍"}</span>
+                                                <div class="flex items-center gap-1.5 mb-4 text-sm text-gray-500 font-medium">
+                                                    <span class="text-orange-500">{"📍"}</span>
                                                     <span>{ format!("{}, {}", city, dept) }</span>
                                                 </div>
                                             }
                                             
-                                            <p class="text-gray-600 mb-4 line-clamp-3">{ &k.description }</p>
+                                            <p class="text-gray-600 mb-6 line-clamp-3 leading-relaxed text-sm flex-grow">
+                                                { &k.description }
+                                            </p>
                                             
-                                            <div class="mt-auto pt-4 border-t border-gray-100">
-                                                <button onclick={on_click_detail(id)} class="w-full bg-white text-primary border border-primary font-bold py-2 px-4 rounded-xl hover:bg-primary hover:text-white transition-colors duration-300">
-                                                    { "Ver Menú y Colaborar" }
+                                            <div class="pt-4 border-t border-gray-100 mt-auto">
+                                                <button onclick={on_click_detail(id)} class="w-full bg-gray-50 text-gray-800 font-bold py-3 px-4 rounded-xl hover:bg-orange-50 hover:text-orange-600 transition-colors duration-300 flex items-center justify-center gap-2 group-btn">
+                                                    { "Colaborar" }
+                                                    <span class="group-btn-hover:translate-x-1 transition-transform">{"→"}</span>
                                                 </button>
                                             </div>
                                         </div>
