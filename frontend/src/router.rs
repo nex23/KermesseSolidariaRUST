@@ -1,6 +1,6 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
-use crate::pages::{home::Home, kermesse_detail::KermesseDetail, auth::{Login, Register}, dashboard::Dashboard, add_dish::AddDish};
+use crate::pages::{home::Home, kermesse_detail::KermesseDetail, auth::{Login, Register}, dashboard::Dashboard, create_kermesse::CreateKermesse, add_dish::AddDish};
 
 #[derive(Clone, Routable, PartialEq)]
 pub enum Route {
@@ -16,6 +16,8 @@ pub enum Route {
     Register,
     #[at("/dashboard")]
     Dashboard,
+    #[at("/create-kermesse")]
+    CreateKermesse,
     #[at("/checkout")]
     Checkout,
     #[at("/my-orders")]
@@ -39,6 +41,7 @@ pub fn switch(routes: Route) -> Html {
         Route::Login => html! { <Login /> },
         Route::Register => html! { <Register /> },
         Route::Dashboard => html! { <Dashboard /> },
+        Route::CreateKermesse => html! { <CreateKermesse /> },
         Route::Checkout => html! { <crate::pages::checkout::Checkout /> },
         Route::MyOrders => html! { <crate::pages::my_orders::MyOrders /> },
         Route::EditKermesse { id } => html! { <crate::pages::edit_kermesse::EditKermesse kermesse_id={id} /> },

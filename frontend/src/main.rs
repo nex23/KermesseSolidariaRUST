@@ -17,7 +17,12 @@ fn app() -> Html {
         <UserContextProvider>
             <context::CartProvider>
                 <BrowserRouter>
-                    <Switch<Route> render={switch} />
+                    <div class="flex flex-col min-h-screen">
+                        <main class="flex-grow">
+                            <Switch<Route> render={switch} />
+                        </main>
+                        <components::footer::Footer />
+                    </div>
                 </BrowserRouter>
             </context::CartProvider>
         </UserContextProvider>

@@ -1,0 +1,42 @@
+services:
+  # Base de Datos PostgreSQL
+  - type: pgo
+    name: kermesse_db
+    databaseName: kermesse_db
+    user: kermesse_user
+    plan: free
+    region: ohio
+
+  # Backend (Rust / Actix-web)
+  - type: web
+    name: kermi-backend
+    env: docker
+    dockerContext: .
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    region: ohio
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kermesse_db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+  # Frontend (Yew / WebAssembly)
+  - type: web
+    name: kermi-frontend
+    env: static
+    buildCommand: |
+      npm install -D tailwindcss
+      cargo install trunk
+      cd frontend && trunk build --release
+    staticPublishPath: ./frontend/dist
+    plan: free
+    region: ohio
+    envVars:
+      - key: API_URL
+        fromService:
+          type: web
+          name: kermi-backend
+          envVarKey: RENDER_EXTERNAL_URL

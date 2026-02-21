@@ -103,9 +103,9 @@ pub fn home() -> Html {
                 <div class="container mx-auto px-6 py-4 flex justify-between items-center">
                     <div class="flex items-center space-x-2 cursor-pointer" onclick={on_click_home}>
                         <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                            { "Kermesse" }
+                            { "Kermi" }
                         </span>
-                        <span class="text-2xl font-light text-gray-500">{ "Solidaria" }</span>
+                        <span class="text-2xl font-light text-gray-500">{ "" }</span>
                     </div>
                     <div class="space-x-4 flex items-center">
                         <button class="text-gray-600 hover:text-primary transition font-medium">{ "Inicio" }</button>
@@ -130,7 +130,7 @@ pub fn home() -> Html {
                 <div class="absolute inset-0 z-0 opacity-10 bg-[url('/pattern.svg')]"></div>
                 <div class="container mx-auto px-6 py-24 relative z-10 text-center">
                     <span class="inline-block py-1 px-3 rounded-full bg-orange-200 text-orange-800 text-sm font-bold mb-4 animate-pulse">
-                        { "🎉 ¡La fiesta solidaria de Bolivia!" }
+                        { "🎉 ¡La app solidaria de Bolivia!" }
                     </span>
                     <h1 class="text-6xl md:text-7xl font-display font-extrabold mb-6 leading-tight text-dark tracking-tight">
                         { "Ayudemos " } 
@@ -139,7 +139,7 @@ pub fn home() -> Html {
                         </span>
                     </h1>
                     <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
-                        { "Disfruta de la mejor gastronomía mientras colaboras con causas nobles. Encuentra kermesses cerca de ti." }
+                        { "Disfruta de la mejor gastronomía mientras colaboras con causas nobles en Kermi." }
                     </p>
                     
                     // Location Filter - Floating Pill
@@ -248,14 +248,6 @@ pub fn home() -> Html {
                     }
                 </div>
             </main>
-
-            // Footer
-             <footer class="bg-dark text-white py-12">
-                <div class="container mx-auto px-6 text-center">
-                    <p class="mb-4 text-gray-400">{ "Hecho con ❤️ en Bolivia para ayudar." }</p>
-                    <p class="text-sm text-gray-600">{ "© 2026 Kermesse Solidaria. Todos los derechos reservados." }</p>
-                </div>
-            </footer>
         </div>
     }
 }

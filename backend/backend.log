@@ -1,0 +1,48 @@
+   Compiling backend v0.1.0 (/media/hugonex/F/Projects/KermesseSolidariaRUST/backend)
+warning: unused imports: `DecodingKey` and `Validation`
+ --> backend/src/utils/jwt.rs:1:28
+  |
+1 | use jsonwebtoken::{encode, DecodingKey, EncodingKey, Header, Validation};
+  |                            ^^^^^^^^^^^                       ^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Condition`, `LoaderTrait`, and `ModelTrait`
+ --> backend/src/api/kermesse.rs:3:36
+  |
+3 |     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, LoaderTrait, ModelTrait, QueryFilter, Set,
+  |                                    ^^^^^^^^^               ^^^^^^^^^^^  ^^^^^^^^^^
+
+warning: unused import: `users`
+ --> backend/src/api/kermesse.rs:8:68
+  |
+8 | use crate::entity::{dishes, ingredients, kermesses, collaborators, users, prelude::*};
+  |                                                                    ^^^^^
+
+warning: unused import: `users`
+ --> backend/src/api/collaboration.rs:7:82
+  |
+7 | use crate::entity::{collaborators, ingredient_donations, ingredients, kermesses, users, prelude::*};
+  |                                                                                  ^^^^^
+
+warning: unused import: `kermesses`
+ --> backend/src/api/dashboard.rs:7:56
+  |
+7 | use crate::entity::{ingredient_donations, ingredients, kermesses, sales, prelude::*};
+  |                                                        ^^^^^^^^^
+
+warning: unused variable: `start`
+   --> backend/src/api/sales.rs:300:9
+    |
+300 |     let start = std::time::Instant::now();
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_start`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `backend` (bin "backend") generated 6 warnings (run `cargo fix --bin "backend" -p backend` to apply 6 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.30s
+     Running `/media/hugonex/F/Projects/KermesseSolidariaRUST/target/debug/backend`
+[2026-02-21T01:31:12Z INFO  backend] Connecting to database...
+[2026-02-21T01:31:12Z INFO  backend] Database connected.
+[2026-02-21T01:31:12Z INFO  backend] Starting server at http://127.0.0.1:8080
+Error: Os { code: 98, kind: AddrInUse, message: "Address already in use" }

@@ -148,6 +148,59 @@ pub async fn list_kermesses(
     }
 }
 
+#[derive(Serialize)]
+pub struct MyKermesseResponse {
+    #[serde(flatten)]
+    pub kermesse: KermesseResponse,
+    pub total_raised: rust_decimal::Decimal,
+    pub total_orders: i64,
+}
+
+pub async fn get_my_kermesses(
+    user: AuthenticatedUser,
+    data: web::Data<AppState>,
+) -> impl Responder {
+    let conn = &data.conn;
+
+    let kermesses = match Kermesses::find()
+        .filter(kermesses::Column::OrganizerId.eq(user.id))
+        .all(conn)
+        .await
+    {
+        Ok(k) => k,
+        Err(_) => return HttpResponse::InternalServerError().body("Database error"),
+    };
+
+    let mut response = Vec::new();
+    for k in kermesses {
+        let k_id = k.id;
+        
+        let sales_list = match crate::entity::sales::Entity::find()
+            .filter(crate::entity::sales::Column::KermesseId.eq(k_id))
+            .all(conn)
+            .await
+        {
+            Ok(s) => s,
+            Err(_) => vec![],
+        };
+
+        let total_raised = sales_list
+            .iter()
+            .filter(|s| s.status == "PAID" || s.status == "DELIVERED")
+            .fold(rust_decimal::Decimal::ZERO, |acc, s| acc + s.total_amount);
+
+        let total_orders = sales_list.len() as i64;
+
+        response.push(MyKermesseResponse {
+            kermesse: KermesseResponse::from(k),
+            total_raised,
+            total_orders,
+        });
+    }
+
+    HttpResponse::Ok().json(response)
+}
+
 pub async fn get_kermesse(
     path: web::Path<i32>,
     data: web::Data<AppState>,
@@ -257,6 +310,10 @@ pub async fn create_dish(
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
+        web::resource("/my-kermesses")
+            .route(web::get().to(get_my_kermesses)),
+    )
+    .service(
         web::resource("/kermesses")
             .route(web::get().to(list_kermesses))
             .route(web::post().to(create_kermesse)),
