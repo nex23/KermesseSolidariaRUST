@@ -1,11 +1,13 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
-use crate::pages::{home::Home, kermesse_detail::KermesseDetail, auth::{Login, Register}, dashboard::Dashboard, create_kermesse::CreateKermesse, add_dish::AddDish};
+use crate::pages::{home::Home, kermesse_detail::KermesseDetail, auth::{Login, Register}, dashboard::Dashboard, create_kermesse::CreateKermesse, add_dish::AddDish, all_kermesses::AllKermesses};
 
 #[derive(Clone, Routable, PartialEq)]
 pub enum Route {
     #[at("/")]
     Home,
+    #[at("/kermesses")]
+    AllKermesses,
     #[at("/kermesses/:id")]
     KermesseDetail { id: i32 },
     #[at("/kermesses/:id/add-dish")]
@@ -36,6 +38,7 @@ pub enum Route {
 pub fn switch(routes: Route) -> Html {
     match routes {
         Route::Home => html! { <Home /> },
+        Route::AllKermesses => html! { <AllKermesses /> },
         Route::KermesseDetail { id } => html! { <KermesseDetail id={id} /> },
         Route::AddDish { id } => html! { <AddDish kermesse_id={id} /> },
         Route::Login => html! { <Login /> },

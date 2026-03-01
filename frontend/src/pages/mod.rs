@@ -9,3 +9,4 @@ pub mod edit_kermesse;
 pub mod collaborator_dashboard;
 pub mod kermesse_orders;
 pub mod create_kermesse;
+pub mod all_kermesses;

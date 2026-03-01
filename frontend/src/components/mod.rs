@@ -6,3 +6,4 @@ pub mod receipt;
 pub mod organizer_orders;
 pub mod organizer_collaborators;
 pub mod footer;
+pub mod navbar;

@@ -82,17 +82,21 @@ pub fn dashboard() -> Html {
         });
     }
 
+    let nav_home = navigator.clone();
+    let nav_create = navigator.clone();
+    let nav_create_empty = navigator.clone();
+
     html! {
         <div class="min-h-screen bg-gray-50 font-sans pb-12">
             // Header
             <div class="bg-white shadow-sm border-b border-gray-100 py-4 px-6 mb-8 flex items-center justify-between">
-                <button onclick={Callback::from(move |_| navigator.push(&Route::Home))} class="flex items-center text-gray-500 hover:text-orange-600 font-bold transition">
+                <button onclick={Callback::from(move |_| nav_home.push(&Route::Home))} class="flex items-center text-gray-500 hover:text-orange-600 font-bold transition">
                     <span class="mr-2">{"←"}</span> { "Volver al Inicio" }
                 </button>
                 <div class="flex items-center gap-4">
                     <h1 class="text-xl font-display font-bold text-gray-800 tracking-tight hidden sm:block">{ "Panel de Organizador" }</h1>
                     <button 
-                        onclick={Callback::from(move |_| navigator.push(&Route::CreateKermesse))} 
+                        onclick={Callback::from(move |_| nav_create.push(&Route::CreateKermesse))} 
                         class="bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold py-2 px-4 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-2"
                     >
                         <span>{"+"}</span> { "Crear Kermesse" }
@@ -126,7 +130,7 @@ pub fn dashboard() -> Html {
                         </div>
                         <h3 class="text-2xl font-bold text-gray-800 mb-3">{ "Aún no has organizado eventos" }</h3>
                         <p class="text-gray-500 mb-8 max-w-md">{ "Comienza a ayudar a los demás organizando tu primera kermesse solidaria. Es rápido, fácil y de gran impacto." }</p>
-                        <button onclick={Callback::from(move |_| navigator.push(&Route::CreateKermesse))} class="bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-orange-500/30 hover:to-red-700 transition transform hover:-translate-y-1">
+                        <button onclick={Callback::from(move |_| nav_create_empty.push(&Route::CreateKermesse))} class="bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-orange-500/30 hover:to-red-700 transition transform hover:-translate-y-1">
                             { "¡Crear mi primera Kermesse!" }
                         </button>
                      </div>
@@ -140,7 +144,10 @@ pub fn dashboard() -> Html {
                         {
                             kermesses.iter().map(|k| {
                                 let id = k.kermesse.id;
-                                let format_navigator = navigator.clone();
+                                let nav_view = navigator.clone();
+                                let nav_edit = navigator.clone();
+                                let on_view = Callback::from(move |_| nav_view.push(&Route::KermesseDetail { id }));
+                                let on_edit = Callback::from(move |_| nav_edit.push(&Route::EditKermesse { id }));
                                 html! {
                                     <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100 flex flex-col group h-full">
                                         <div class="p-8 flex-grow flex flex-col">
@@ -175,13 +182,13 @@ pub fn dashboard() -> Html {
                                             
                                             <div class="mt-auto grid grid-cols-2 gap-3">
                                                 <button 
-                                                    onclick={Callback::from(move |_| format_navigator.push(&Route::KermesseDetail { id }))}
+                                                    onclick={on_view}
                                                     class="w-full bg-gray-50 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 hover:text-gray-900 transition flex items-center justify-center gap-2"
                                                 >
                                                     { "Ver" }
                                                 </button>
                                                 <button 
-                                                    onclick={Callback::from(move |_| format_navigator.push(&Route::EditKermesse { id }))}
+                                                    onclick={on_edit}
                                                     class="w-full bg-orange-50 text-orange-700 font-bold py-3 rounded-xl hover:bg-orange-600 hover:text-white transition flex items-center justify-center gap-2"
                                                 >
                                                     { "Editar" }

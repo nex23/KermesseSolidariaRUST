@@ -18,6 +18,7 @@ fn app() -> Html {
             <context::CartProvider>
                 <BrowserRouter>
                     <div class="flex flex-col min-h-screen">
+                        <components::navbar::Navbar />
                         <main class="flex-grow">
                             <Switch<Route> render={switch} />
                         </main>

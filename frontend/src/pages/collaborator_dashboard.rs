@@ -59,11 +59,14 @@ pub fn collaborator_dashboard() -> Html {
     // For simplicity, we can just navigate to a "Manage Orders" page for that kermesse
     // e.g. /kermesses/:id/orders
     
+    let nav_home = navigator.clone();
+    let nav_home_empty = navigator.clone();
+
     html! {
         <div class="min-h-screen bg-gray-50 font-sans pb-12">
             // Header / Navbar Placeholder
             <div class="bg-white shadow-sm border-b border-gray-100 py-4 px-6 mb-8 flex items-center justify-between">
-                <button onclick={Callback::from(move |_| navigator.push(&Route::Home))} class="flex items-center text-gray-500 hover:text-teal-600 font-bold transition">
+                <button onclick={Callback::from(move |_| nav_home.push(&Route::Home))} class="flex items-center text-gray-500 hover:text-teal-600 font-bold transition">
                     <span class="mr-2">{"←"}</span> { "Volver al Inicio" }
                 </button>
                 <h1 class="text-xl font-display font-bold text-gray-800 tracking-tight">{ "Mi Panel de Colaborador" }</h1>
@@ -95,7 +98,7 @@ pub fn collaborator_dashboard() -> Html {
                         </div>
                         <h3 class="text-2xl font-bold text-gray-800 mb-3">{ "Aún no colaboras en eventos" }</h3>
                         <p class="text-gray-500 mb-8 max-w-md">{ "Puedes buscar eventos activos en tu comunidad y solicitar unirte como colaborador para ayudar a recaudar fondos." }</p>
-                        <button onclick={Callback::from(move |_| navigator.push(&Route::Home))} class="bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-teal-500/30 hover:to-cyan-700 transition transform hover:-translate-y-1">
+                        <button onclick={Callback::from(move |_| nav_home_empty.push(&Route::Home))} class="bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-teal-500/30 hover:to-cyan-700 transition transform hover:-translate-y-1">
                             { "Explorar Eventos" }
                         </button>
                      </div>

@@ -13,3 +13,4 @@ dist/
 # System
 .DS_Store
 Thumbs.db
+backend.log\nfrontend.log

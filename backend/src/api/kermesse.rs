@@ -121,6 +121,7 @@ pub async fn create_kermesse(
 #[derive(Deserialize)]
 pub struct KermesseFilter {
     pub department: Option<String>,
+    pub search: Option<String>,
 }
 
 pub async fn list_kermesses(
@@ -129,11 +130,26 @@ pub async fn list_kermesses(
 ) -> impl Responder {
     let conn = &data.conn;
 
-    let mut query = Kermesses::find().filter(kermesses::Column::Status.eq("ACTIVE"));
+    let today = chrono::Local::now().date_naive();
+
+    let mut query = Kermesses::find()
+        .filter(kermesses::Column::Status.eq("ACTIVE"))
+        .filter(kermesses::Column::EventDate.gte(today));
 
     if let Some(dept) = &filter.department {
         if !dept.is_empty() && dept != "Todos" {
              query = query.filter(kermesses::Column::Department.eq(dept.clone()));
+        }
+    }
+
+    if let Some(search) = &filter.search {
+        if !search.is_empty() {
+            let pattern = format!("%{}%", search.to_lowercase());
+            query = query.filter(
+                sea_orm::Condition::any()
+                    .add(kermesses::Column::Name.like(&pattern))
+                    .add(kermesses::Column::Description.like(&pattern))
+            );
         }
     }
 
